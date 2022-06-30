@@ -1,27 +1,44 @@
-CC=gcc
-CFLAGS=-Wall -Wformat=0
-ODIR=obj
-IDIR=../include
-LDIR=../lib
-PROGRAM=client server
+$(shell mkdir -p obj)
 
-_DEPS = error_functions.o get_num.o inet_sockets.o become_daemon.o
+CC = gcc
+ODIR = obj
+IDIR = ../include
+LDIR = ../lib
+BIN = client server
+
+_DEPS = error_functions.o become_daemon.o get_num.o inet_sockets.o
 DEPS = $(patsubst %, $(ODIR)/%,$(_DEPS))
 
-all: $(PROGRAM)
 
-# compile
-$(ODIR)/%.o: $(LDIR)/%.c
+all : $(BIN)
+
+
+$(ODIR)/error_functions.o : $(LDIR)/error_functions.c
 	$(CC) -c -o $@ $<
 
-$(ODIR)/%.o: %.c
+$(ODIR)/become_daemon.o : $(LDIR)//become_daemon.c
+	$(CC) -c -o $@ $< 
+
+$(ODIR)/get_num.o :  $(LDIR)//get_num.c
 	$(CC) -c -o $@ $<
 
-# link
+$(ODIR)/inet_sockets.o : $(LDIR)/inet_sockets.c
+	$(CC) -c -o $@ $<
 
-$(PROGRAM): $(patsubst %, $(ODIR)/%,$(addsuffix .o,$(PROGRAM))) $(DEPS)
-	$(CC) -o $@ $(ODIR)/$@.o $(DEPS) 
+$(ODIR)/client.o : client.c
+	$(CC) -c -o $@ $<
+
+$(ODIR)/server.o : server.c
+	$(CC) -c -o $@ $<
+
+client : $(ODIR)/client.o  $(DEPS)
+	@echo $(DEPS)
+	$(CC) -o $@ $^
+
+
+server : $(ODIR)/server.o  $(DEPS)
+	$(CC) -o $@ $^
 
 .PHONY: clean
-clean: 
-	rm $(ODIR)/*.o $(PROGRAM)
+clean:
+	rm obj/*.o $(BIN)
